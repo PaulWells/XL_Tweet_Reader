@@ -8,34 +8,37 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".Search_Tweet_Activity" >
 	
-    
-        
+
     <View
         android:id="@+id/blankView"
         android:layout_width="15dip"
         android:layout_height="0dip"
+        android:layout_alignParentLeft="true"
     />
     
     <EditText
         android:id="@+id/search_box"
-        android:layout_alignParentTop="true"
-        android:layout_toRightOf="@id/blankView"
         android:hint="@string/hint"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/search_button" />
+        android:layout_height="50dip"
+        android:layout_toRightOf="@id/blankView"
+        android:layout_toLeftOf="@+id/search_button"
+         />
     
     <Button
         android:id="@id/search_button"
-        android:layout_width="60dip"
-        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_height="50dip"
         android:text="@string/search"
-    	android:layout_toRightOf="@id/search_box"
-    	android:paddingLeft="30dip"
+    	android:onClick="searchForTweets"
+    	android:layout_gravity="center"
     	android:layout_alignParentRight="true"
-    	android:onClick="searchForTweets"/>
+    	/>
+    
+    
     
     <ListView 
+        android:layout_marginTop="10dip"
         android:id="@+id/tweet_list"
     	android:layout_width="wrap_content"
     	android:layout_height="wrap_content"
