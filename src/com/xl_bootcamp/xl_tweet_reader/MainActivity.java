@@ -48,11 +48,21 @@ public class MainActivity extends Activity {
 		}
 				
 	}
-	/*
+	
 	protected void onSaveInstanceState(Bundle savedInstanceState){
+		savedInstanceState.putParcelableArrayList("TweetList", tweets);
+	}
+	
+	protected void onRestoreInstanceState(Bundle savedInstanceState){
+		if(savedInstanceState.containsKey("TweetList")){
+			tweets = savedInstanceState.getParcelableArrayList("TweetList");
+			
+			ListView listView = (ListView) findViewById(R.id.tweet_list);
+			listView.setAdapter(new TweetAdapter(MainActivity.this, R.layout.tweetlist_item, tweets));
+		}
 		
 	}
-	*/
+	
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -60,8 +70,6 @@ public class MainActivity extends Activity {
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
-
-
 
 
 	private class TweetAdapter extends ArrayAdapter<Tweet>{
@@ -167,7 +175,6 @@ public class MainActivity extends Activity {
 	
 	Drawable drawable_from_url(String url) throws java.net.MalformedURLException, java.io.IOException 
 	{
-		
 	   return Drawable.createFromStream(((java.io.InputStream) new java.net.URL(url).getContent()), "blank");
 	}
 	
