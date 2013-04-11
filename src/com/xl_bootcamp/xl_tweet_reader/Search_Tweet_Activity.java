@@ -3,7 +3,6 @@ package com.xl_bootcamp.xl_tweet_reader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 
@@ -16,19 +15,16 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+
+
+
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
-import android.app.ListActivity;
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -36,44 +32,27 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class MainActivity extends Activity {
-
-	private ArrayList<Tweet> tweets = new ArrayList<Tweet>();
+public class Search_Tweet_Activity extends Activity {
+	
+	ArrayList<Tweet> tweets = new ArrayList<Tweet>();
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+		setContentView(R.layout.activity_search__tweet);
 		
-		if(savedInstanceState==null){
-			new NetworkCom().execute();
-		}
-				
-	}
-	
-	protected void onSaveInstanceState(Bundle savedInstanceState){
-		savedInstanceState.putParcelableArrayList("TweetList", tweets);
-	}
-	
-	protected void onRestoreInstanceState(Bundle savedInstanceState){
-		if(savedInstanceState.containsKey("TweetList")){
-			tweets = savedInstanceState.getParcelableArrayList("TweetList");
-			
-			ListView listView = (ListView) findViewById(R.id.tweet_list);
-			listView.setAdapter(new TweetAdapter(MainActivity.this, R.layout.tweetlist_item, tweets));
-		}
 		
 	}
-	
-	
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
+		getMenuInflater().inflate(R.menu.search__tweet_, menu);
 		return true;
 	}
-
-
+	
+	
+	
 	private class TweetAdapter extends ArrayAdapter<Tweet>{
 		private ArrayList<Tweet> tweets;
 		
@@ -90,6 +69,7 @@ public class MainActivity extends Activity {
 	                    LayoutInflater viewInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	                    v = viewInflater.inflate(R.layout.tweetlist_item, null);
 	            }
+	            
 	            Tweet aTweet = tweets.get(position);
 	            TextView authorView = (TextView) v.findViewById(R.id.author);
 	            TextView messageView = (TextView) v.findViewById(R.id.message);
@@ -113,7 +93,7 @@ public class MainActivity extends Activity {
 		protected void onPostExecute(Void result){
 			
 			ListView listView = (ListView) findViewById(R.id.tweet_list);
-			listView.setAdapter(new TweetAdapter(MainActivity.this, R.layout.tweetlist_item, tweets));
+			listView.setAdapter(new TweetAdapter(Search_Tweet_Activity.this, R.layout.tweetlist_item, tweets));
 			
 			
 		}
@@ -143,7 +123,7 @@ public class MainActivity extends Activity {
 	                     
 	                     tweet.profilePicURL = jsonTweet.getString("profile_image_url_https");
 	                
-	                     tweet.profilePicImage = getBitmapFromURL(tweet.profilePicURL);
+	                     tweet.profilePicImage = MainActivity.getBitmapFromURL(tweet.profilePicURL);
 	                    
 	                     tweets.add(tweet);
 					 }
@@ -160,30 +140,9 @@ public class MainActivity extends Activity {
 		
 	}
 	
-	public static Bitmap getBitmapFromURL(String src) {
-	    try {
-	        URL url = new URL(src);
-	        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-	        connection.setDoInput(true);
-	        connection.connect();
-	        InputStream input = connection.getInputStream();
-	        Bitmap myBitmap = BitmapFactory.decodeStream(input);
-	        return myBitmap;
-	    } catch (IOException e) {
-	        e.printStackTrace();
-	        return null;
-	    }
-	}
 	
-	public boolean startCustomSearch(MenuItem m){
-		Intent intent = new Intent(this, Search_Tweet_Activity.class);
-		startActivity(intent);
-		
-		return true;
+	public void searchForTweets(View v){
+		new NetworkCom().execute();
 	}
-	
 
 }
-
-
-

@@ -3,9 +3,9 @@
     package="com.xl_bootcamp.xl_tweet_reader"
     android:versionCode="1"
     android:versionName="1.0" >
-    
-	<uses-permission android:name="android.permission.INTERNET" />
-	
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <uses-sdk
         android:minSdkVersion="8"
         android:targetSdkVersion="17" />
@@ -23,6 +23,18 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name="com.xl_bootcamp.xl_tweet_reader.CustomSearchActivity"
+            android:label="@string/title_activity_custom_search"
+            android:parentActivityName="com.xl_bootcamp.xl_tweet_reader.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.xl_bootcamp.xl_tweet_reader.MainActivity" />
+        </activity>
+        <activity
+            android:name="com.xl_bootcamp.xl_tweet_reader.Search_Tweet_Activity"
+            android:label="@string/title_activity_search__tweet_" >
         </activity>
     </application>
 
