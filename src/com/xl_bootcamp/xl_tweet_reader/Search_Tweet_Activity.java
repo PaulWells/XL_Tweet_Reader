@@ -28,6 +28,7 @@ import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -51,41 +52,7 @@ public class Search_Tweet_Activity extends Activity {
 		return true;
 	}
 	
-	
-	
-	private class TweetAdapter extends ArrayAdapter<Tweet>{
-		private ArrayList<Tweet> tweets;
-		
-		TweetAdapter(Context thisContext, int layoutID, ArrayList<Tweet> tweetItems){
-			super(thisContext,layoutID, tweetItems);
-			this.tweets = tweetItems;
-		}
-		
-		@Override
-	    public View getView(int position, View convertView, ViewGroup parent) {
-	            View v = convertView;
-	            
-	            if (v == null) {
-	                    LayoutInflater viewInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-	                    v = viewInflater.inflate(R.layout.tweetlist_item, null);
-	            }
-	            
-	            Tweet aTweet = tweets.get(position);
-	            TextView authorView = (TextView) v.findViewById(R.id.author);
-	            TextView messageView = (TextView) v.findViewById(R.id.message);
-	            TextView dateView = (TextView) v.findViewById(R.id.created);
-	            ImageView profileImage = (ImageView) v.findViewById(R.id.profilepic);
-	            
-	            authorView.setText(aTweet.message);
-	            messageView.setText(aTweet.author);
-	            dateView.setText(aTweet.createdAt);
-	            profileImage.setImageBitmap(aTweet.profilePicImage);
-	            
-	            return v;
-				
-	    }
-		
-	}
+
 	
 	private class NetworkCom extends AsyncTask<Void,Void,Void>{
 		
@@ -99,41 +66,19 @@ public class Search_Tweet_Activity extends Activity {
 		}
 		
 		protected Void doInBackground(Void... arg0){
-			String url = "http://search.twitter.com/search.json?q=%23bieber&src=typd";
+			EditText searchBox = (EditText) findViewById(R.id.search_box);
+			String searchPhrase = searchBox.getText().toString();
+			searchBox.clearFocus();
 			
-			try{
-				HttpClient twitterClient = new DefaultHttpClient();
-				HttpGet getRequest = new HttpGet(url);
-				
-				HttpResponse response = twitterClient.execute(getRequest);
-				
-				 if(response.getStatusLine().getStatusCode() == HttpStatus.SC_OK){
-					 
-					 String searchResults = EntityUtils.toString(response.getEntity());
-					 JSONObject jsonData = new JSONObject(searchResults);
-					 
-					 JSONArray jsonTweetArray = jsonData.getJSONArray("results");
-					 
-					 for (int i = 0; i < jsonTweetArray.length(); i++) {
-	                     JSONObject jsonTweet = jsonTweetArray.getJSONObject(i);
-	                     Tweet tweet = new Tweet();
-	                     tweet.message = jsonTweet.getString("text");
-	                     tweet.author = jsonTweet.getString("from_user");
-	                     tweet.createdAt = jsonTweet.getString("created_at");
-	                     
-	                     tweet.profilePicURL = jsonTweet.getString("profile_image_url_https");
-	                
-	                     tweet.profilePicImage = MainActivity.getBitmapFromURL(tweet.profilePicURL);
-	                    
-	                     tweets.add(tweet);
-					 }
-	             }
-		
-				
-			}catch(Exception e){
-				Log.e("XL_Tweet_Reader", "Error connecting to Twitter", e);
+			//remove hashtag if user entered hashtag
+			if(searchPhrase.indexOf('#')==0){
+				searchPhrase =searchPhrase.substring(1);
 			}
-
+			
+			String url = "http://search.twitter.com/search.json?q=%23" + searchPhrase + "&src=typd";
+			
+			NetworkHelper.pull_tweets(url, tweets);
+			
 			return null;
 			
 		}

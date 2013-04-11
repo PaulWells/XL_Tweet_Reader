@@ -31,6 +31,7 @@ public class Tweet implements Parcelable {
 	Tweet(){
 		
 	}
+	
 
 	@Override
 	public int describeContents() {
