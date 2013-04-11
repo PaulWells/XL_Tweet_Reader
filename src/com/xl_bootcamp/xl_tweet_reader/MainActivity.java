@@ -1,7 +1,10 @@
 package com.xl_bootcamp.xl_tweet_reader;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 
 import org.apache.http.HttpResponse;
@@ -18,6 +21,8 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.app.ListActivity;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -38,9 +43,9 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
-		//if(savedInstanceState!=null){
+		if(savedInstanceState==null){
 			new NetworkCom().execute();
-		//}
+		}
 				
 	}
 	/*
@@ -84,7 +89,7 @@ public class MainActivity extends Activity {
 	            authorView.setText(aTweet.message);
 	            messageView.setText(aTweet.author);
 	            dateView.setText(aTweet.createdAt);
-	            profileImage.setImageDrawable(aTweet.profilePicImage);
+	            profileImage.setImageBitmap(aTweet.profilePicImage);
 	            
 	            return v;
 				
@@ -125,19 +130,11 @@ public class MainActivity extends Activity {
 	                     tweet.message = jsonTweet.getString("text");
 	                     tweet.author = jsonTweet.getString("from_user");
 	                     tweet.createdAt = jsonTweet.getString("created_at");
-	                     Log.e("a",tweet.message);
-	                     Log.e("a",tweet.author);
-	                     Log.e("a",tweet.createdAt);
+	                     
 	                     tweet.profilePicURL = jsonTweet.getString("profile_image_url_https");
-	                     try{
-	                    	 tweet.profilePicImage = drawable_from_url(tweet.profilePicURL);
-	                     }catch (MalformedURLException e) {
-	     					
-	     					Log.e("XL_Tweet_Reader", "MalformedURLException");
-	     				
-	     				} catch (IOException e) {
-	     					Log.e("XL_Tweet_Reader","IOException");
-	     				}
+	                
+	                     tweet.profilePicImage = getBitmapFromURL(tweet.profilePicURL);
+	                    
 	                     tweets.add(tweet);
 					 }
 	             }
@@ -146,17 +143,31 @@ public class MainActivity extends Activity {
 			}catch(Exception e){
 				Log.e("XL_Tweet_Reader", "Error connecting to Twitter", e);
 			}
-			
-			
-			
+
 			return null;
 			
 		}
 		
 	}
 	
+	public static Bitmap getBitmapFromURL(String src) {
+	    try {
+	        URL url = new URL(src);
+	        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+	        connection.setDoInput(true);
+	        connection.connect();
+	        InputStream input = connection.getInputStream();
+	        Bitmap myBitmap = BitmapFactory.decodeStream(input);
+	        return myBitmap;
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	        return null;
+	    }
+	}
+	
 	Drawable drawable_from_url(String url) throws java.net.MalformedURLException, java.io.IOException 
 	{
+		
 	   return Drawable.createFromStream(((java.io.InputStream) new java.net.URL(url).getContent()), "blank");
 	}
 	
