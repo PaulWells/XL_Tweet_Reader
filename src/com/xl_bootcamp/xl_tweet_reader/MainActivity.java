@@ -1,5 +1,7 @@
 package com.xl_bootcamp.xl_tweet_reader;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 
 import org.apache.http.HttpResponse;
@@ -16,12 +18,14 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.app.ListActivity;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -59,16 +63,24 @@ public class MainActivity extends Activity {
 		@Override
 	    public View getView(int position, View convertView, ViewGroup parent) {
 	            View v = convertView;
+	            
 	            if (v == null) {
 	                    LayoutInflater viewInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	                    v = viewInflater.inflate(R.layout.tweetlist_item, null);
 	            }
 	            Tweet aTweet = tweets.get(position);
-	            TextView authorView = (TextView) v.findViewById(R.id.tweet_author);
-	            TextView messageView = (TextView) v.findViewById(R.id.tweet_message);
+	            TextView authorView = (TextView) v.findViewById(R.id.author);
+	            TextView messageView = (TextView) v.findViewById(R.id.message);
+	            TextView dateView = (TextView) v.findViewById(R.id.created);
+	            ImageView profileImage = (ImageView) v.findViewById(R.id.profilepic);
+	            
 	            authorView.setText(aTweet.message);
 	            messageView.setText(aTweet.author);
+	            dateView.setText(aTweet.createdAt);
+	            profileImage.setImageDrawable(aTweet.profilePicImage);
+	            
 	            return v;
+				
 	    }
 		
 	}
@@ -80,6 +92,7 @@ public class MainActivity extends Activity {
 			
 			ListView listView = (ListView) findViewById(R.id.tweet_list);
 			listView.setAdapter(new TweetAdapter(MainActivity.this, R.layout.tweetlist_item, tweets));
+			
 			
 		}
 		
@@ -104,6 +117,20 @@ public class MainActivity extends Activity {
 	                     Tweet tweet = new Tweet();
 	                     tweet.message = jsonTweet.getString("text");
 	                     tweet.author = jsonTweet.getString("from_user");
+	                     tweet.createdAt = jsonTweet.getString("created_at");
+	                     Log.e("a",tweet.message);
+	                     Log.e("a",tweet.author);
+	                     Log.e("a",tweet.createdAt);
+	                     tweet.profilePicURL = jsonTweet.getString("profile_image_url_https");
+	                     try{
+	                    	 tweet.profilePicImage = drawable_from_url(tweet.profilePicURL);
+	                     }catch (MalformedURLException e) {
+	     					
+	     					Log.e("XL_Tweet_Reader", "MalformedURLException");
+	     				
+	     				} catch (IOException e) {
+	     					Log.e("XL_Tweet_Reader","IOException");
+	     				}
 	                     tweets.add(tweet);
 					 }
 	             }
@@ -113,10 +140,17 @@ public class MainActivity extends Activity {
 				Log.e("XL_Tweet_Reader", "Error connecting to Twitter", e);
 			}
 			
+			
+			
 			return null;
 			
 		}
 		
+	}
+	
+	Drawable drawable_from_url(String url) throws java.net.MalformedURLException, java.io.IOException 
+	{
+	   return Drawable.createFromStream(((java.io.InputStream) new java.net.URL(url).getContent()), "blank");
 	}
 	
 	
