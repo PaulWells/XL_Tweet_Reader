@@ -36,10 +36,8 @@ public class NetworkHelper {
 	    }
 	}
 	
-	public static void pull_tweets(String url,ArrayList<Tweet> tweets){
+	public static int pull_tweets(String url,ArrayList<Tweet> tweets){
 		
-		//create new list of tweets so that the list is cleared on a new search
-		//ArrayList<Tweet> newTweets = new ArrayList<Tweet>();
 		
 		try{
 			HttpClient twitterClient = new DefaultHttpClient();
@@ -54,12 +52,17 @@ public class NetworkHelper {
 				 
 				 JSONArray jsonTweetArray = jsonData.getJSONArray("results");
 				 
+				 if(jsonTweetArray.length()==0){
+					 
+					 return 0;
+				 }
+				 
 				 tweets.clear();
 				 
 				 for (int i = 0; i < jsonTweetArray.length(); i++) {
 	                 JSONObject jsonTweet = jsonTweetArray.getJSONObject(i);
 	                 Tweet tweet = new Tweet();
-	                 tweet.message = jsonTweet.getString("text");
+	                 tweet.message = jsonTweet.getString("text").replace("&amp;", "&");
 	                 tweet.author = jsonTweet.getString("from_user");
 	                 tweet.createdAt = jsonTweet.getString("created_at");
 	                 
@@ -76,8 +79,11 @@ public class NetworkHelper {
 			
 		}catch(Exception e){
 			Log.e("XL_Tweet_Reader", "Error connecting to Twitter", e);
+			return 0;
 		}
 		
-		return;
+		return 1;
 	}
+	
+	
 }

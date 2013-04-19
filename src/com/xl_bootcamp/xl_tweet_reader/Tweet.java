@@ -29,7 +29,11 @@ public class Tweet implements Parcelable {
 	}
 	
 	Tweet(){
-		
+		author=null;
+		message=null;
+		createdAt=null;
+		profilePicURL=null;
+		profilePicImage=null;
 	}
 	
 
