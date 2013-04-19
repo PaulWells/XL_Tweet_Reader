@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <issue id="DefaultLocale">
+        <ignore path="src/com/xl_bootcamp/xl_tweet_reader/Search_Tweet_Activity.java" />
+    </issue>
+</lint>

@@ -29,6 +29,7 @@ public class TweetAdapter extends ArrayAdapter<Tweet>{
                     v = viewInflater.inflate(R.layout.tweetlist_item, null);
             }
             
+            
             Tweet aTweet = tweets.get(position);
             TextView authorView = (TextView) v.findViewById(R.id.author);
             TextView messageView = (TextView) v.findViewById(R.id.message);

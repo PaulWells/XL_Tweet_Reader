@@ -63,5 +63,10 @@ public class Tweet implements Parcelable {
 		    return new Tweet[size];
 		}
 	};
+	
+	@Override
+	public Tweet clone(){
+		return new Tweet(author, message, createdAt, profilePicURL);
+	}
 }
 

@@ -27,13 +27,14 @@ public final class R {
         public static final int ic_launcher=0x7f020000;
     }
     public static final class id {
-        public static final int action_custom_search=0x7f090008;
-        public static final int action_settings=0x7f090009;
-        public static final int author=0x7f090006;
+        public static final int action_custom_search=0x7f090009;
+        public static final int action_settings=0x7f09000a;
+        public static final int author=0x7f090007;
         public static final int blankView=0x7f090001;
-        public static final int created=0x7f090007;
-        public static final int message=0x7f090005;
-        public static final int profilepic=0x7f090004;
+        public static final int created=0x7f090008;
+        public static final int custom_tweet_list=0x7f090004;
+        public static final int message=0x7f090006;
+        public static final int profilepic=0x7f090005;
         public static final int search_box=0x7f090002;
         public static final int search_button=0x7f090003;
         public static final int tweet_list=0x7f090000;

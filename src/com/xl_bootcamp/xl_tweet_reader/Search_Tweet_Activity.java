@@ -1,6 +1,10 @@
 package com.xl_bootcamp.xl_tweet_reader;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -8,6 +12,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
@@ -16,13 +21,26 @@ import android.widget.ListView;
 public class Search_Tweet_Activity extends Activity {
 	
 	ArrayList<Tweet> tweets = new ArrayList<Tweet>();
+	Timer tweetTimer = new Timer();
+	TweetTimerTask update = new TweetTimerTask();
+	final int delay = 30000; //delay in milliseconds between tweet updates
+	long startDelay; //the amount of time left on the clock when activity was created
+	long startTime; //time activity was started
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_search__tweet);
 		
+		startDelay = delay;
 		
+	}
+	
+	protected void onDestroy(){
+		super.onDestroy();
+		tweetTimer.cancel();
+		tweetTimer.purge();
+	
 	}
 
 	@Override
@@ -34,14 +52,44 @@ public class Search_Tweet_Activity extends Activity {
 	
 	protected void onSaveInstanceState(Bundle savedInstanceState){
 		savedInstanceState.putParcelableArrayList("Custom TweetList", tweets);
+		
+		long countdown;
+		
+		//if waiting for delay to start task then scheduledExecutionTime is 0
+		Log.e("scheduledExecutionTime", String.valueOf(update.scheduledExecutionTime()));
+		if(update.scheduledExecutionTime() != 0)
+			countdown = startDelay - (new Date().getTime()-update.scheduledExecutionTime());
+		else
+			countdown = startDelay - (new Date().getTime()-startTime);
+		
+		//if task is executing then reset countdown
+		if(countdown < 0)
+			countdown = delay;
+		
+		savedInstanceState.putLong("Time Left", countdown);
+		
+		String text = ((EditText) findViewById(R.id.search_box)).getText().toString();
+		savedInstanceState.putString("Search Field", text);
 	}
 	
 	protected void onRestoreInstanceState(Bundle savedInstanceState){
 		if(savedInstanceState.containsKey("Custom TweetList")){
-			tweets = savedInstanceState.getParcelableArrayList("Custom TweetList");
+
+			startTime = new Date().getTime();			
+			long timeLeft = savedInstanceState.getLong("Time Left");
+			startDelay = timeLeft;
 			
-			ListView listView = (ListView) findViewById(R.id.tweet_list);
-			listView.setAdapter(new TweetAdapter(this, R.layout.tweetlist_item, tweets));
+			
+			Log.e("Time Left", String.valueOf(timeLeft));
+			tweetTimer.scheduleAtFixedRate(update,timeLeft, delay);
+			
+			String text= savedInstanceState.getString("Search Field");
+			((EditText) findViewById(R.id.search_box)).setText(text);
+			
+			tweets = savedInstanceState.getParcelableArrayList("Custom TweetList");
+			ListView listView = (ListView) findViewById(R.id.custom_tweet_list);
+			listView.removeAllViewsInLayout();
+			listView.setAdapter(new TweetAdapter(Search_Tweet_Activity.this, R.layout.tweetlist_item, tweets));
 		}
 		
 	}
@@ -53,7 +101,8 @@ public class Search_Tweet_Activity extends Activity {
 		@Override
 		protected void onPostExecute(Integer result){
 			
-			ListView listView = (ListView) findViewById(R.id.tweet_list);
+			ListView listView = (ListView) findViewById(R.id.custom_tweet_list);
+			listView.removeAllViewsInLayout();
 			listView.setAdapter(new TweetAdapter(Search_Tweet_Activity.this, R.layout.tweetlist_item, tweets));
 			
 			if(result==0){
@@ -70,10 +119,13 @@ public class Search_Tweet_Activity extends Activity {
 			
 			String url = "http://search.twitter.com/search.json?q=%23" + searchPhrase + "&src=typd";
 			
-			Integer success = NetworkHelper.pull_tweets(url, tweets);
+			ArrayList<Tweet> copylist = new ArrayList<Tweet>();
+			int success = NetworkHelper.pull_tweets(url, copylist);
 			
-			
-			
+			tweets.clear();
+			for(int i = 0; i< copylist.size();i++)
+				tweets.add(copylist.get(i));
+
 			return success;
 			
 		}
@@ -84,7 +136,7 @@ public class Search_Tweet_Activity extends Activity {
 	//before searching
 	private String cleanHashTag(String tag){
 		
-	
+		tag=tag.toLowerCase(Locale.CANADA);
 		
 		StringBuffer newBuffer = new StringBuffer(tag);
 		
@@ -100,7 +152,10 @@ public class Search_Tweet_Activity extends Activity {
 	}
 	
 	public void searchForTweets(View v){
-		new NetworkCom().execute();
+		update.cancel();
+		update = new TweetTimerTask();
+		tweetTimer.scheduleAtFixedRate(update, 0, delay);	
+		
 	}
 	
 	private void callDialog(Context thisContext){
@@ -116,5 +171,20 @@ public class Search_Tweet_Activity extends Activity {
 		
 		noTweets.show();
 	}
+	
+	private class TweetTimerTask extends TimerTask {
+		
+		@Override
+		public void run(){
+			Log.e("its running", "yes");
+			new NetworkCom().execute();
+			
+		}
+		
+		
+			
+	}
 
 }
+
+

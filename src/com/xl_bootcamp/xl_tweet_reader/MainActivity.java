@@ -9,9 +9,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
 import android.widget.ListView;
 
 
@@ -32,7 +32,8 @@ public class MainActivity extends Activity {
 		
 		if(savedInstanceState == null)
 			tweetTimer.scheduleAtFixedRate(update, 0, delay);	
-			startDelay = delay;
+		startDelay = delay;
+		
 	}
 	
 	@Override
@@ -55,13 +56,13 @@ public class MainActivity extends Activity {
 		else
 			countdown = startDelay - (new Date().getTime()-startTime);
 		
-		
-		Log.e("countdown",String.valueOf(countdown));
-		Log.e("schedule time",String.valueOf(update.scheduledExecutionTime()));
-		Log.e("current time",String.valueOf(new Date().getTime()));
-		
-		
+		//if task is being executed then reset countdown
+		if(countdown < 0)
+			countdown = delay;
+
 		savedInstanceState.putLong("Time Left", countdown);
+		
+		
 	
 		
 	}
@@ -70,14 +71,15 @@ public class MainActivity extends Activity {
 		if(savedInstanceState.containsKey("TweetList")){
 			
 			startTime = new Date().getTime();
-			
-			tweets = savedInstanceState.getParcelableArrayList("TweetList");
 			long timeLeft = savedInstanceState.getLong("Time Left");
 			startDelay = timeLeft;
 			tweetTimer.scheduleAtFixedRate(update,timeLeft, delay);
 			
 			
+			
+			tweets = savedInstanceState.getParcelableArrayList("TweetList");
 			ListView listView = (ListView) findViewById(R.id.tweet_list);
+			listView.removeAllViewsInLayout();
 			listView.setAdapter(new TweetAdapter(MainActivity.this, R.layout.tweetlist_item, tweets));
 		}
 		
@@ -97,6 +99,7 @@ public class MainActivity extends Activity {
 		protected void onPostExecute(Void result){
 			
 			ListView listView = (ListView) findViewById(R.id.tweet_list);
+			listView.removeAllViewsInLayout();
 			listView.setAdapter(new TweetAdapter(MainActivity.this, R.layout.tweetlist_item, tweets));
 
 			
@@ -105,7 +108,12 @@ public class MainActivity extends Activity {
 		protected Void doInBackground(Void... arg0){
 			startDelay=delay;
 			String url = "http://search.twitter.com/search.json?q=%23bieber&src=typd";
-			NetworkHelper.pull_tweets(url, tweets);
+			ArrayList<Tweet> copylist = new ArrayList<Tweet>();
+			NetworkHelper.pull_tweets(url, copylist);
+			
+			tweets.clear();
+			for(int i = 0; i< copylist.size();i++)
+				tweets.add(copylist.get(i));
 
 			return null;
 			
@@ -121,14 +129,9 @@ public class MainActivity extends Activity {
 			new NetworkCom().execute();
 			
 		}
-		
-		
-			
+	
 	}
 
-	
-	
-	
 	public boolean startCustomSearch(MenuItem m){
 		Intent intent = new Intent(this, Search_Tweet_Activity.class);
 		startActivity(intent);
