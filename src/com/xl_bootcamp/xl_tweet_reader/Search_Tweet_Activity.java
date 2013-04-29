@@ -32,7 +32,8 @@ public class Search_Tweet_Activity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_search__tweet);
 		
-		startDelay = delay;
+		if(savedInstanceState == null)
+			startDelay = delay;
 		
 	}
 	
@@ -55,8 +56,8 @@ public class Search_Tweet_Activity extends Activity {
 		
 		long countdown;
 		
+		
 		//if waiting for delay to start task then scheduledExecutionTime is 0
-		Log.e("scheduledExecutionTime", String.valueOf(update.scheduledExecutionTime()));
 		if(update.scheduledExecutionTime() != 0)
 			countdown = startDelay - (new Date().getTime()-update.scheduledExecutionTime());
 		else
@@ -68,60 +69,66 @@ public class Search_Tweet_Activity extends Activity {
 		
 		savedInstanceState.putLong("Time Left", countdown);
 		
+		//save text in search bar
 		String text = ((EditText) findViewById(R.id.search_box)).getText().toString();
 		savedInstanceState.putString("Search Field", text);
 	}
 	
 	protected void onRestoreInstanceState(Bundle savedInstanceState){
-		if(savedInstanceState.containsKey("Custom TweetList")){
-
-			startTime = new Date().getTime();			
-			long timeLeft = savedInstanceState.getLong("Time Left");
-			startDelay = timeLeft;
-			
-			
-			Log.e("Time Left", String.valueOf(timeLeft));
-			tweetTimer.scheduleAtFixedRate(update,timeLeft, delay);
-			
-			String text= savedInstanceState.getString("Search Field");
-			((EditText) findViewById(R.id.search_box)).setText(text);
-			
-			tweets = savedInstanceState.getParcelableArrayList("Custom TweetList");
-			ListView listView = (ListView) findViewById(R.id.custom_tweet_list);
-			listView.removeAllViewsInLayout();
-			listView.setAdapter(new TweetAdapter(Search_Tweet_Activity.this, R.layout.tweetlist_item, tweets));
-		}
 		
+		//start timer
+		startTime = new Date().getTime();			
+		long timeLeft = savedInstanceState.getLong("Time Left");
+		startDelay = timeLeft;
+		tweetTimer.scheduleAtFixedRate(update,timeLeft, delay);
+		
+		//restore text in search bar
+		String text= savedInstanceState.getString("Search Field");
+		((EditText) findViewById(R.id.search_box)).setText(text);
+		
+		//restore tweets in list
+		tweets = savedInstanceState.getParcelableArrayList("Custom TweetList");
+		ListView listView = (ListView) findViewById(R.id.custom_tweet_list);
+		listView.setAdapter(new TweetAdapter(Search_Tweet_Activity.this, R.layout.tweetlist_item, tweets));	
 	}
 	
 
-	
 	private class NetworkCom extends AsyncTask<Void,Void,Integer>{
 		
 		@Override
 		protected void onPostExecute(Integer result){
 			
-			ListView listView = (ListView) findViewById(R.id.custom_tweet_list);
-			listView.removeAllViewsInLayout();
-			listView.setAdapter(new TweetAdapter(Search_Tweet_Activity.this, R.layout.tweetlist_item, tweets));
+			ListView listView = (ListView) findViewById(R.id.tweet_list);
+			TweetAdapter adapter =  (TweetAdapter) listView.getAdapter();
 			
+			//reset list adapter
+			if(adapter == null){
+				listView.setAdapter(new TweetAdapter(Search_Tweet_Activity.this, R.layout.tweetlist_item, tweets));
+			}
+			else
+				adapter.notifyDataSetChanged();
+			
+			//create pop-up box if no tweets found
 			if(result==0){
 				callDialog(Search_Tweet_Activity.this);
 			}
 		}
 		
 		protected Integer doInBackground(Void... arg0){
+			
+			//get phrase from search bar and remove invalid characters
 			EditText searchBox = (EditText) findViewById(R.id.search_box);
 			String searchPhrase = searchBox.getText().toString();
-			
 			searchPhrase = cleanHashTag(searchPhrase);
-			
 			
 			String url = "http://search.twitter.com/search.json?q=%23" + searchPhrase + "&src=typd";
 			
 			ArrayList<Tweet> copylist = new ArrayList<Tweet>();
+			
+			//retrieve tweets
 			int success = NetworkHelper.pull_tweets(url, copylist);
 			
+			//update arraylist connected to listview
 			tweets.clear();
 			for(int i = 0; i< copylist.size();i++)
 				tweets.add(copylist.get(i));
@@ -140,12 +147,11 @@ public class Search_Tweet_Activity extends Activity {
 		
 		StringBuffer newBuffer = new StringBuffer(tag);
 		
+		//iterate through buffer backwards so deleting characters does not change index of remaining letters
 		for(int i = tag.length()-1; i >= 0;i--){
 			if(!Character.isLetterOrDigit(tag.charAt(i)) && !(tag.charAt(i) == '_'))
 				newBuffer.deleteCharAt(i);
 		}
-		
-		
 		
 		return newBuffer.toString();
 		
@@ -158,6 +164,7 @@ public class Search_Tweet_Activity extends Activity {
 		
 	}
 	
+	//creates message box to warn user that no tweets were found for their search
 	private void callDialog(Context thisContext){
 		AlertDialog noTweets;
 		noTweets = new AlertDialog.Builder(thisContext).create();
@@ -175,14 +182,13 @@ public class Search_Tweet_Activity extends Activity {
 	private class TweetTimerTask extends TimerTask {
 		
 		@Override
+		//executes every time timer reaches 0
 		public void run(){
-			Log.e("its running", "yes");
+			
 			new NetworkCom().execute();
 			
 		}
-		
-		
-			
+	
 	}
 
 }

@@ -21,8 +21,11 @@ import android.util.Log;
 
 public class NetworkHelper {
 	
+	//convert a url into a bitmap
 	public static Bitmap getBitmapFromURL(String src) {
+		
 	    try {
+	    	
 	        URL url = new URL(src);
 	        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 	        connection.setDoInput(true);
@@ -30,51 +33,53 @@ public class NetworkHelper {
 	        InputStream input = connection.getInputStream();
 	        Bitmap myBitmap = BitmapFactory.decodeStream(input);
 	        return myBitmap;
+	        
 	    } catch (IOException e) {
 	        e.printStackTrace();
 	        return null;
 	    }
 	}
 	
+	//puts tweets from url into arraylist tweets.  return a 1 if successful 0 otherwise
 	public static int pull_tweets(String url,ArrayList<Tweet> tweets){
 		
 		
 		try{
+			
 			HttpClient twitterClient = new DefaultHttpClient();
 			HttpGet getRequest = new HttpGet(url);
 			
 			HttpResponse response = twitterClient.execute(getRequest);
 			
-			 if(response.getStatusLine().getStatusCode() == HttpStatus.SC_OK){
-				 
-				 String searchResults = EntityUtils.toString(response.getEntity());
-				 JSONObject jsonData = new JSONObject(searchResults);
-				 
-				 JSONArray jsonTweetArray = jsonData.getJSONArray("results");
-				 
-				 if(jsonTweetArray.length()==0){
-					 
-					 return 0;
-				 }
-				 
-				 tweets.clear();
-				 
-				 for (int i = 0; i < jsonTweetArray.length(); i++) {
-	                 JSONObject jsonTweet = jsonTweetArray.getJSONObject(i);
-	                 Tweet tweet = new Tweet();
-	                 tweet.message = jsonTweet.getString("text").replace("&amp;", "&");
-	                 tweet.author = jsonTweet.getString("from_user");
-	                 tweet.createdAt = jsonTweet.getString("created_at");
-	                 
-	                 tweet.profilePicURL = jsonTweet.getString("profile_image_url_https");
-	            
-	                 tweet.profilePicImage = getBitmapFromURL(tweet.profilePicURL);
+			//if request was valid
+			if(response.getStatusLine().getStatusCode() == HttpStatus.SC_OK){
+				
+				//convert results to json array
+				String searchResults = EntityUtils.toString(response.getEntity());
+				JSONObject jsonData = new JSONObject(searchResults);
+				JSONArray jsonTweetArray = jsonData.getJSONArray("results");
+				
+				//don't parse if array empty
+				if(jsonTweetArray.length()==0)
+					return 0;
+				
+				//parse data from JSON array, make into tweet objects and put into arraylist tweets
+				for (int i = 0; i < jsonTweetArray.length(); i++) {
+					
+	                JSONObject jsonTweet = jsonTweetArray.getJSONObject(i);
 	                
-	                 tweets.add(tweet);
-				 }
+	                Tweet tweet = new Tweet();
+	                tweet.message = jsonTweet.getString("text").replace("&amp;", "&");
+	                tweet.author = jsonTweet.getString("from_user");
+	                tweet.createdAt = jsonTweet.getString("created_at");
+	                tweet.profilePicURL = jsonTweet.getString("profile_image_url_https");
+	                tweet.profilePicImage = getBitmapFromURL(tweet.profilePicURL);
+	                
+	                tweets.add(tweet);
+				}
 				 
 				 
-	         }
+	        }
 	
 			
 		}catch(Exception e){

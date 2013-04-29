@@ -11,18 +11,15 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.EditText;
 import android.widget.ListView;
-
-
 
 public class MainActivity extends Activity {
 
 	private ArrayList<Tweet> tweets = new ArrayList<Tweet>();
 	Timer tweetTimer = new Timer();
-	TweetTimerTask update = new TweetTimerTask();
+	TweetTimerTask update = new TweetTimerTask(); //update tweets
 	final int delay = 30000; //delay in milliseconds between tweet updates
-	long startDelay; //the amount of time left on the clock when activity was created
+	long startDelay; //milliseconds before next update when activity was created
 	long startTime; //time activity was started
 	
 	@Override
@@ -31,9 +28,9 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 		
 		if(savedInstanceState == null)
-			tweetTimer.scheduleAtFixedRate(update, 0, delay);	
-		startDelay = delay;
-		
+			//start timer for tweet updates
+			tweetTimer.scheduleAtFixedRate(update, 0, delay);
+
 	}
 	
 	@Override
@@ -41,8 +38,7 @@ public class MainActivity extends Activity {
 		super.onDestroy();
 		tweetTimer.cancel();
 		tweetTimer.purge();
-		
-		
+	
 	}
 	
 	protected void onSaveInstanceState(Bundle savedInstanceState){
@@ -50,39 +46,32 @@ public class MainActivity extends Activity {
 		
 		long countdown;
 		
-		//if waiting for delay to start task then scheduledExecutionTime is 0
+		//if waiting for delay before timer starts then scheduledExecutionTime is 0
 		if(update.scheduledExecutionTime() != 0)
 			countdown = startDelay - (new Date().getTime()-update.scheduledExecutionTime());
 		else
 			countdown = startDelay - (new Date().getTime()-startTime);
 		
-		//if task is being executed then reset countdown
+		//if task is being executed already then reset countdown
 		if(countdown < 0)
 			countdown = delay;
 
 		savedInstanceState.putLong("Time Left", countdown);
 		
-		
-	
-		
 	}
 
 	protected void onRestoreInstanceState(Bundle savedInstanceState){
-		if(savedInstanceState.containsKey("TweetList")){
 			
-			startTime = new Date().getTime();
-			long timeLeft = savedInstanceState.getLong("Time Left");
-			startDelay = timeLeft;
-			tweetTimer.scheduleAtFixedRate(update,timeLeft, delay);
-			
-			
-			
-			tweets = savedInstanceState.getParcelableArrayList("TweetList");
-			ListView listView = (ListView) findViewById(R.id.tweet_list);
-			listView.removeAllViewsInLayout();
-			listView.setAdapter(new TweetAdapter(MainActivity.this, R.layout.tweetlist_item, tweets));
-		}
+		startTime = new Date().getTime();  //set time activity started
+		startDelay = savedInstanceState.getLong("Time Left");  //time left until next update
+		tweetTimer.scheduleAtFixedRate(update,startDelay, delay);  
 		
+		tweets = savedInstanceState.getParcelableArrayList("TweetList");
+		
+		
+		//find view that tweets are displayed in and set adapter to "tweets" arraylist
+		ListView listView = (ListView) findViewById(R.id.tweet_list);  
+		listView.setAdapter(new TweetAdapter(MainActivity.this, R.layout.tweetlist_item, tweets));		
 	}
 	
 	@Override
@@ -92,23 +81,32 @@ public class MainActivity extends Activity {
 		return true;
 	}
 	
-	
+	//this async task does the work of fetching the tweets
 	private class NetworkCom extends AsyncTask<Void,Void,Void>{
 		
 		@Override
 		protected void onPostExecute(Void result){
 			
 			ListView listView = (ListView) findViewById(R.id.tweet_list);
-			listView.removeAllViewsInLayout();
-			listView.setAdapter(new TweetAdapter(MainActivity.this, R.layout.tweetlist_item, tweets));
-
+			TweetAdapter adapter =  (TweetAdapter) listView.getAdapter();
+			
+			//reset list adapter
+			if(adapter == null){
+				listView.setAdapter(new TweetAdapter(MainActivity.this, R.layout.tweetlist_item, tweets));
+			}
+			else
+				adapter.notifyDataSetChanged();
 			
 		}
 		
 		protected Void doInBackground(Void... arg0){
+			
 			startDelay=delay;
+			
 			String url = "http://search.twitter.com/search.json?q=%23bieber&src=typd";
 			ArrayList<Tweet> copylist = new ArrayList<Tweet>();
+			
+			//load tweets into copylist from url
 			NetworkHelper.pull_tweets(url, copylist);
 			
 			tweets.clear();
@@ -124,6 +122,7 @@ public class MainActivity extends Activity {
 	private class TweetTimerTask extends TimerTask {
 		
 		@Override
+		//executes every time timer gets to 0
 		public void run(){
 			
 			new NetworkCom().execute();
