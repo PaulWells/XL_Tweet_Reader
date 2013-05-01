@@ -12,6 +12,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ListView;
 
 public class MainActivity extends Activity {
@@ -61,6 +62,10 @@ public class MainActivity extends Activity {
 
 		savedInstanceState.putLong("Time Left", countdown);
 		
+		//save position of scroll bar
+		ListView listView = (ListView) findViewById(R.id.tweet_list);  
+		savedInstanceState.putInt("Scroll Position", listView.getScrollY());
+		
 	}
 
 	@Override
@@ -75,7 +80,11 @@ public class MainActivity extends Activity {
 		
 		//find view that tweets are displayed in and set adapter to "tweets" arraylist
 		ListView listView = (ListView) findViewById(R.id.tweet_list);  
-		listView.setAdapter(new TweetAdapter(tweets));		
+		listView.setAdapter(new TweetAdapter(tweets));
+		
+		//reset scrollbar position
+		listView.scrollTo(View.SCROLLBAR_POSITION_DEFAULT, savedInstanceState.getInt("Scroll Position"));
+		
 	}
 	
 	@Override
