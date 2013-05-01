@@ -74,6 +74,11 @@ public class Search_Tweet_Activity extends Activity {
 		//save text in search bar
 		String text = ((EditText) findViewById(R.id.search_box)).getText().toString();
 		savedInstanceState.putString("Search Field", text);
+		
+		//save position of scroll bar
+		ListView listView = (ListView) findViewById(R.id.tweet_list);  
+		savedInstanceState.putInt("Scroll Position", listView.getScrollY());
+		
 	}
 	
 	@Override
@@ -93,6 +98,9 @@ public class Search_Tweet_Activity extends Activity {
 		tweets = savedInstanceState.getParcelableArrayList("Custom TweetList");
 		ListView listView = (ListView) findViewById(R.id.custom_tweet_list);
 		listView.setAdapter(new TweetAdapter(tweets));	
+		
+		//reset scrollbar position
+		listView.scrollTo(View.SCROLLBAR_POSITION_DEFAULT, savedInstanceState.getInt("Scroll Position"));
 	}
 	
 
