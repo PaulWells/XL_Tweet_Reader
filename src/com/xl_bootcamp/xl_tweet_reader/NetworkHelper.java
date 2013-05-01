@@ -56,9 +56,10 @@ public class NetworkHelper {
 				
 				//convert results to json array
 				String searchResults = EntityUtils.toString(response.getEntity());
+				
 				JSONObject jsonData = new JSONObject(searchResults);
 				JSONArray jsonTweetArray = jsonData.getJSONArray("results");
-				
+
 				//don't parse if array empty
 				if(jsonTweetArray.length()==0)
 					return 0;
@@ -89,6 +90,5 @@ public class NetworkHelper {
 		
 		return 1;
 	}
-	
 	
 }

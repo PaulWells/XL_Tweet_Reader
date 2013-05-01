@@ -37,6 +37,7 @@ public class Search_Tweet_Activity extends Activity {
 		
 	}
 	
+	@Override
 	protected void onDestroy(){
 		super.onDestroy();
 		tweetTimer.cancel();
@@ -51,6 +52,7 @@ public class Search_Tweet_Activity extends Activity {
 		return true;
 	}
 	
+	@Override
 	protected void onSaveInstanceState(Bundle savedInstanceState){
 		savedInstanceState.putParcelableArrayList("Custom TweetList", tweets);
 		
@@ -74,6 +76,7 @@ public class Search_Tweet_Activity extends Activity {
 		savedInstanceState.putString("Search Field", text);
 	}
 	
+	@Override
 	protected void onRestoreInstanceState(Bundle savedInstanceState){
 		
 		//start timer
@@ -89,7 +92,7 @@ public class Search_Tweet_Activity extends Activity {
 		//restore tweets in list
 		tweets = savedInstanceState.getParcelableArrayList("Custom TweetList");
 		ListView listView = (ListView) findViewById(R.id.custom_tweet_list);
-		listView.setAdapter(new TweetAdapter(Search_Tweet_Activity.this, R.layout.tweetlist_item, tweets));	
+		listView.setAdapter(new TweetAdapter(tweets));	
 	}
 	
 
@@ -103,7 +106,7 @@ public class Search_Tweet_Activity extends Activity {
 			
 			//reset list adapter
 			if(adapter == null){
-				listView.setAdapter(new TweetAdapter(Search_Tweet_Activity.this, R.layout.tweetlist_item, tweets));
+				listView.setAdapter(new TweetAdapter(tweets));
 			}
 			else
 				adapter.notifyDataSetChanged();
@@ -114,6 +117,7 @@ public class Search_Tweet_Activity extends Activity {
 			}
 		}
 		
+		@Override
 		protected Integer doInBackground(Void... arg0){
 			
 			//get phrase from search bar and remove invalid characters
@@ -171,7 +175,8 @@ public class Search_Tweet_Activity extends Activity {
 		noTweets.setTitle("Search Results");
 		noTweets.setMessage("No tweets found");
 		noTweets.setButton(getString(R.string.okay), new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
+            @Override
+			public void onClick(DialogInterface dialog, int id) {
                 dialog.dismiss();
             }
         });

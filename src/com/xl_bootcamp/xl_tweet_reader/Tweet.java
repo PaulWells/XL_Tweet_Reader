@@ -55,10 +55,12 @@ public class Tweet implements Parcelable {
 	}
 	
 	public static final Parcelable.Creator<Tweet> CREATOR = new Parcelable.Creator<Tweet>() {
+		@Override
 		public Tweet createFromParcel(Parcel in) {
 		    return new Tweet(in);
 		}
 		
+		@Override
 		public Tweet[] newArray(int size) {
 		    return new Tweet[size];
 		}
