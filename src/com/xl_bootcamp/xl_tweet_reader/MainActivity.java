@@ -97,7 +97,7 @@ public class MainActivity extends Activity {
 	//this async task does the work of fetching the tweets
 	private class NetworkCom extends AsyncTask<Void,Void,Void>{
 		
-		private WeakReference<Activity> ref;
+		//private WeakReference<Activity> ref;
 		
 		@Override
 		protected void onPostExecute(Void result){
@@ -109,6 +109,7 @@ public class MainActivity extends Activity {
 				listView.setAdapter(new TweetAdapter(tweets));
 			}
 			else
+				
 				adapter.notifyDataSetChanged();
 			
 		}
@@ -118,7 +119,7 @@ public class MainActivity extends Activity {
 			
 			startDelay=delay;
 			
-			String url = "http://search.twitter.com/search.json?q=%23mom&src=typd";
+			String url = "http://search.twitter.com/search.json?q=%23win&src=typd";
 			ArrayList<Tweet> copylist = new ArrayList<Tweet>();
 			
 			//load tweets into copylist from url

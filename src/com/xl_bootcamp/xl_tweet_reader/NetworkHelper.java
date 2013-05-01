@@ -45,7 +45,7 @@ public class NetworkHelper {
 		
 		
 		try{
-			
+			Log.d("get to?", "pull_tweets");
 			HttpClient twitterClient = new DefaultHttpClient();
 			HttpGet getRequest = new HttpGet(url);
 			

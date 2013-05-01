@@ -1,6 +1,8 @@
 package com.xl_bootcamp.xl_tweet_reader;
 
+import java.sql.Date;
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 
 import android.animation.ObjectAnimator;
 import android.content.Context;
@@ -14,6 +16,7 @@ import android.widget.TextView;
 
 public class TweetAdapter extends BaseAdapter {
 	private ArrayList<Tweet> tweets;
+	private GregorianCalendar lastDate;
 
 
 	TweetAdapter(ArrayList<Tweet> tweetItems) {
@@ -27,7 +30,7 @@ public class TweetAdapter extends BaseAdapter {
 		View v = convertView;
 
 		if (v == null) {
-			Log.d("TEST", "count: " + count++);
+			
 			LayoutInflater viewInflater = (LayoutInflater) parent.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			v = viewInflater.inflate(R.layout.tweetlist_item, parent, false);
 			
@@ -43,12 +46,29 @@ public class TweetAdapter extends BaseAdapter {
 		messageView.setText(aTweet.author);
 		dateView.setText(aTweet.createdAt);
 		profileImage.setImageBitmap(aTweet.profilePicImage);
+		
+		GregorianCalendar thisDate = DateParser.parseCalendar(aTweet.createdAt);
+		Log.d("well", "i got here");
+		if(lastDate != null){
+			
+			if(thisDate.after(lastDate) && !thisDate.equals(lastDate)){
+				ObjectAnimator anim = ObjectAnimator.ofFloat(v, "alpha", 0f, 1f);
+				anim.setDuration(500);
+				anim.start();
+			}
+			
+			lastDate = thisDate;
+			
+			
+		}
+		else{
 
-		
-		ObjectAnimator anim = ObjectAnimator.ofFloat(v, "alpha", 0f, 1f);
-		anim.setDuration(1000);
-		anim.start();
-		
+			ObjectAnimator anim = ObjectAnimator.ofFloat(v, "alpha", 0f, 1f);
+			anim.setDuration(500);
+			anim.start();
+			
+			lastDate = DateParser.parseCalendar(aTweet.createdAt);
+		}
 
 		return v;
 	}
