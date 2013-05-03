@@ -6,7 +6,8 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".Search_Tweet_Activity" >
+    tools:context=".Search_Tweet_Activity" 
+    android:background = "@android:color/white" >
 	
 
     <View

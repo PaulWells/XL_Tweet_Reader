@@ -76,7 +76,7 @@ public class Search_Tweet_Activity extends Activity {
 		savedInstanceState.putString("Search Field", text);
 		
 		//save position of scroll bar
-		ListView listView = (ListView) findViewById(R.id.tweet_list);  
+		ListView listView = (ListView) findViewById(R.id.custom_tweet_list);  
 		savedInstanceState.putInt("Scroll Position", listView.getScrollY());
 		
 	}
@@ -109,7 +109,10 @@ public class Search_Tweet_Activity extends Activity {
 		@Override
 		protected void onPostExecute(Integer result){
 			
-			ListView listView = (ListView) findViewById(R.id.tweet_list);
+			
+			ListView listView = (ListView) findViewById(R.id.custom_tweet_list);
+			if(listView == null)
+				return;
 			TweetAdapter adapter =  (TweetAdapter) listView.getAdapter();
 			
 			//reset list adapter
@@ -177,6 +180,7 @@ public class Search_Tweet_Activity extends Activity {
 	}
 	
 	//creates message box to warn user that no tweets were found for their search
+	@SuppressWarnings("deprecation")
 	private void callDialog(Context thisContext){
 		AlertDialog noTweets;
 		noTweets = new AlertDialog.Builder(thisContext).create();

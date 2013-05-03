@@ -37,10 +37,6 @@ public class DateParser {
 		
 		month = monthToInt.get(dateString.substring(8,11));
 		
-		Log.e("second", Integer.toString(second));
-		Log.d("minute", Integer.toString(minute));
-		Log.d("month", Integer.toString(month));
-		
 		return new GregorianCalendar(year,month,day,hour,minute,second);
 		
 	}

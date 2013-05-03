@@ -1,6 +1,5 @@
 package com.xl_bootcamp.xl_tweet_reader;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Timer;
@@ -125,14 +124,11 @@ public class MainActivity extends Activity {
 			//load tweets into copylist from url
 			NetworkHelper.pull_tweets(url, copylist);
 			
-			//tweets.clear();
+			tweets.clear();
 			
 			int newTweets = 0;  //number of new tweets
-			for(int i = 0; i< copylist.size();i++){
-				if(!tweets.contains(copylist.get(i))){
-					tweets.add(newTweets, copylist.get(i));
-					newTweets++;
-				}
+			for(int i = copylist.size()-1; i>= 0;i--){
+				tweets.add(newTweets, copylist.get(i));
 			}
 			
 			return null;

@@ -16,7 +16,7 @@ import android.widget.TextView;
 
 public class TweetAdapter extends BaseAdapter {
 	private ArrayList<Tweet> tweets;
-	private GregorianCalendar lastDate;
+	//private GregorianCalendar lastDate;
 
 
 	TweetAdapter(ArrayList<Tweet> tweetItems) {
@@ -47,28 +47,11 @@ public class TweetAdapter extends BaseAdapter {
 		dateView.setText(aTweet.createdAt);
 		profileImage.setImageBitmap(aTweet.profilePicImage);
 		
-		GregorianCalendar thisDate = DateParser.parseCalendar(aTweet.createdAt);
-		Log.d("well", "i got here");
-		if(lastDate != null){
-			
-			if(thisDate.after(lastDate) && !thisDate.equals(lastDate)){
-				ObjectAnimator anim = ObjectAnimator.ofFloat(v, "alpha", 0f, 1f);
-				anim.setDuration(500);
-				anim.start();
-			}
-			
-			lastDate = thisDate;
-			
-			
-		}
-		else{
-
-			ObjectAnimator anim = ObjectAnimator.ofFloat(v, "alpha", 0f, 1f);
-			anim.setDuration(500);
-			anim.start();
-			
-			lastDate = DateParser.parseCalendar(aTweet.createdAt);
-		}
+		/*
+		ObjectAnimator anim = ObjectAnimator.ofFloat(v, "alpha", 0f, 1f);
+		anim.setDuration(500);
+		anim.start();
+		*/	
 
 		return v;
 	}
